@@ -1,19 +1,23 @@
 package org.example;
 
+import java.util.HashMap;
+
 public class Main {
 
     public static void main(String[] args) {
+        HashMap<String, Item> items = new HashMap<String, Item>();
+
 
         Checkout checkout = new Checkout();
 
-        checkout.addAllItems();
-        checkout.scan(001);
-        checkout.scan(003);
-        checkout.scan(002);
-        checkout.scan(002);
+        items = checkout.addAllItems();
+        checkout.scan("001", items);
+        checkout.scan("003", items);
+        checkout.scan("002", items);
+        checkout.scan("002", items);
 
 
-        System.out.println("Totol Price = " + checkout.total());
+        System.out.println("Total Price = " + checkout.total());
 
 
 

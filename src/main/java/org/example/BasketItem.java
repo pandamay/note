@@ -1,16 +1,17 @@
 package org.example;
+import java.math.BigDecimal;
 
 public class BasketItem {
 
-    private int id;
+    private String id;
     private double price;
 
-    public BasketItem(int id, double price) {
+    public BasketItem(String id, double price) {
         this.id = id;
         this.price = price;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 

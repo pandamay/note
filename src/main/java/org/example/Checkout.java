@@ -1,20 +1,22 @@
 package org.example;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Checkout {
-    HashMap<Integer, Item> items = new HashMap<Integer, Item>();
-    LinkedList<BasketItem> basketItems = new LinkedList<BasketItem>();
+public class Checkout extends Base {
 
-    public void addAllItems() {
-        items.put(001, new Item(001, "Travel Card Holder", 9.25));
-        items.put(002, new Item(002, "Personalised cufflinks", 45.00));
-        items.put(003, new Item(003, "Kids T-shirt", 19.95));
+
+    public HashMap<String, Item> addAllItems() {
+        items.put("001", new Item("001", "Travel Card Holder", 9.25));
+        items.put("002", new Item("002", "Personalised cufflinks", 45.00));
+        items.put("003", new Item("003", "Kids T-shirt", 19.95));
+        return items;
     }
 
-    public double getPrice(int itemNumber) {
+    public double getPrice(String itemNumber, HashMap<String, Item>  items) {
         if (items.containsKey(itemNumber)) {
             Item item = items.get(itemNumber);
             return item.getPrice();
@@ -22,9 +24,10 @@ public class Checkout {
         return 0;
     }
 
-    public void scan(int itemNumber) {
-        double price = getPrice(itemNumber);
+    public LinkedList<BasketItem> scan(String itemNumber,  HashMap<String, Item>  items) {
+        double price = getPrice(itemNumber, items);
         basketItems.add(new BasketItem(itemNumber, price));
+        return  basketItems;
 
     }
 
@@ -47,7 +50,7 @@ public class Checkout {
 
     }
 
-    public double total() {
+    public String total() {
 
         double totalPrice = 0;
 
@@ -58,7 +61,8 @@ public class Checkout {
             BasketItem a  = (BasketItem)basketIt.next();
             totalPrice = totalPrice + a.getPrice();
         }
-        return applyDiscountOnTotalIfApplies(totalPrice);
+        DecimalFormat df = new DecimalFormat("#############.###");
+        return (df.format(applyDiscountOnTotalIfApplies(totalPrice)));
 
     }
 }
