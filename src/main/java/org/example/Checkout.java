@@ -5,9 +5,24 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
-public class Checkout extends Base {
+public class Checkout  {
 
+    //TODO, add access modifiers to classes and variables and fix private and public
+
+    HashMap<String, Item> items;
+    HashMap<String, BasketItem> basketItems;
+
+    public Checkout() {
+        items = new HashMap<String, Item>();
+        basketItems = new HashMap<String, BasketItem>();
+    }
+
+    public  HashMap<String, Item> addItem(Item item)  {
+        items.put(item.getId(), item);
+        return items;
+    }
 
     public HashMap<String, Item> addAllItems() {
         items.put("001", new Item("001", "Travel Card Holder", 9.25));
@@ -24,11 +39,16 @@ public class Checkout extends Base {
         return 0;
     }
 
-    public LinkedList<BasketItem> scan(String itemNumber,  HashMap<String, Item>  items) {
+    public HashMap<String, BasketItem> scan(String itemNumber, HashMap<String, Item> items) {
         double price = getPrice(itemNumber, items);
-        basketItems.add(new BasketItem(itemNumber, price));
+        if (basketItems.containsKey(itemNumber) ) {
+            int quantity = basketItems.get(itemNumber).getQuantity();
+            basketItems.put(itemNumber, new BasketItem(price, quantity+1));
+        }
+        else {
+            basketItems.put(itemNumber, new BasketItem(price));
+        }
         return  basketItems;
-
     }
 
     private double applyDiscountOnTotalIfApplies(double totalPrice){
@@ -38,31 +58,31 @@ public class Checkout extends Base {
         return totalPrice;
     }
 
-    private LinkedList<BasketItem> applyMultiProductDeals() {
-//        basketItems.stream().map(b -> b.getId().equals(001)
-
-        for (BasketItem b: basketItems)  {
-
-        }
-
-
+    private HashMap<String, BasketItem> applyMultiProductDeals() {
         return basketItems;
-
     }
 
     public String total() {
 
         double totalPrice = 0;
 
-        LinkedList<BasketItem> basketItems = applyMultiProductDeals();
 
-        Iterator basketIt = basketItems.iterator();
-        while(basketIt.hasNext()) {
-            BasketItem a  = (BasketItem)basketIt.next();
-            totalPrice = totalPrice + a.getPrice();
+        for (Map.Entry<String, BasketItem> entry : basketItems.entrySet()) {
+            String key = entry.getKey();
+            BasketItem basketItem = entry.getValue();
+            totalPrice = totalPrice + basketItem.getPrice();
         }
+
         DecimalFormat df = new DecimalFormat("#############.###");
         return (df.format(applyDiscountOnTotalIfApplies(totalPrice)));
 
+    }
+
+    public HashMap<String, Item> getItems() {
+        return items;
+    }
+
+    public HashMap<String, BasketItem> getBasketItems() {
+        return basketItems;
     }
 }

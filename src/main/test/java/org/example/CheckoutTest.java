@@ -1,5 +1,6 @@
 package org.example;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -8,11 +9,31 @@ import java.util.LinkedList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CheckoutTest {
+    Checkout co;
+
+    @BeforeEach
+    public void setUp() {
+        co = new Checkout();
+    }
+
+    // add test for retriveing an item that doesn't exist
+
+    @Test
+    void addOneItem() {
+        Item item = new Item("009", "Item 1", 9.99);
+       co.addItem(item);
+
+        HashMap<String, Item> items = co.getItems();
+
+        assertEquals(items.size(),1);
+        assertEquals(items.get("009").getId(),"009");
+        assertEquals(items.get("009").getName(),"Item 1");
+        assertEquals(items.get("009").getPrice(),9.99);
+    }
 
     @Test
     void addAllItems() {
         HashMap<String, Item> items = new HashMap<String, Item>();
-        Checkout co = new Checkout();
         items.put("009", new Item("009", "Item 1", 9.99));
         items.put("011", new Item("011", "Item 3", 99999.99));
 
@@ -29,6 +50,7 @@ class CheckoutTest {
 
     @Test
     void getPrice() {
+        // add test to get price for items  that don't exist as well
         HashMap<String, Item> items = new HashMap<String, Item>();
         Checkout co = new Checkout();
         items.put("009", new Item("009", "Item 1", 9.99));
@@ -45,14 +67,16 @@ class CheckoutTest {
 
     @Test
     void scan() {
+        // test with one item that exits  and brand new item
+
         HashMap<String, Item> items = new HashMap<String, Item>();
         items.put("009", new Item("009", "Item 1", 9.99));
 
-        LinkedList<BasketItem> basketItems = new LinkedList<BasketItem>();
+        HashMap<String, BasketItem> basketItems = new HashMap<String, BasketItem>();
         Checkout checkout = new Checkout();
         basketItems =  checkout.scan("009", items);
-        assertEquals(basketItems.getFirst().getPrice(),9.99);
-        assertEquals(basketItems.getFirst().getId(),"009");
+        assertEquals(basketItems.get("009").getPrice(),9.99);
+        assertEquals(basketItems.get("009").getQuantity(),1);
     }
 
     @Test
@@ -60,7 +84,8 @@ class CheckoutTest {
         HashMap<String, Item> items = new HashMap<String, Item>();
         items.put("009", new Item("009", "Item 1", 9.99));
 
-        LinkedList<BasketItem> basketItems = new LinkedList<BasketItem>();
+        HashMap<String, BasketItem> basketItems = new HashMap<String, BasketItem>();
+
         Checkout checkout = new Checkout();
         basketItems =  checkout.scan("009", items);
         assertEquals(checkout.total(), "9.99");
@@ -73,7 +98,7 @@ class CheckoutTest {
         items.put("008", new Item("008", "Item 2", 10.99));
 
 
-        LinkedList<BasketItem> basketItems = new LinkedList<BasketItem>();
+        HashMap<String, BasketItem> basketItems = new HashMap<String, BasketItem>();
         Checkout checkout = new Checkout();
         basketItems =  checkout.scan("009", items);
         basketItems =  checkout.scan("008", items);
@@ -88,7 +113,7 @@ class CheckoutTest {
         items.put("008", new Item("008", "Item 2", 50));
 
 
-        LinkedList<BasketItem> basketItems = new LinkedList<BasketItem>();
+        HashMap<String, BasketItem> basketItems = new HashMap<String, BasketItem>();
         Checkout checkout = new Checkout();
         basketItems =  checkout.scan("009", items);
         basketItems =  checkout.scan("008", items);
