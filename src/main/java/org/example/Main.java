@@ -24,7 +24,7 @@ public class Main {
         checkout.scan("001", items);
         checkout.scan("003", items);
         checkout.scan("002", items);
-//        checkout.scan("002", items);
+        checkout.scan("002", items);
 
 
         System.out.println("Total Price = " + checkout.total());

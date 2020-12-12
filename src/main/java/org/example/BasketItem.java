@@ -14,7 +14,7 @@ public class BasketItem {
     }
 
     public BasketItem (double price, int quantity) {
-        this.quantity = this.quantity;
+        this.quantity = quantity;
         this.price = price;
     }
 

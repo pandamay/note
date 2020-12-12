@@ -1,10 +1,7 @@
 package org.example;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 
 public class Checkout  {
@@ -31,7 +28,7 @@ public class Checkout  {
         return items;
     }
 
-    public double getPrice(String itemNumber, HashMap<String, Item>  items) {
+    protected double getItemPrice(String itemNumber, HashMap<String, Item> items) {
         if (items.containsKey(itemNumber)) {
             Item item = items.get(itemNumber);
             return item.getPrice();
@@ -39,16 +36,13 @@ public class Checkout  {
         return 0;
     }
 
-    public HashMap<String, BasketItem> scan(String itemNumber, HashMap<String, Item> items) {
-        double price = getPrice(itemNumber, items);
-        if (basketItems.containsKey(itemNumber) ) {
-            int quantity = basketItems.get(itemNumber).getQuantity();
-            basketItems.put(itemNumber, new BasketItem(price, quantity+1));
-        }
-        else {
-            basketItems.put(itemNumber, new BasketItem(price));
-        }
-        return  basketItems;
+    protected double getTotalPriceForEachItemNumber(BasketItem basketItem){
+        double totalPriceForItem = 0;
+        double pricePerItem = basketItem.getPrice();
+        int quantityPerItem = basketItem.getQuantity();
+        totalPriceForItem = pricePerItem * quantityPerItem;
+        return totalPriceForItem;
+
     }
 
     private double applyDiscountOnTotalIfApplies(double totalPrice){
@@ -62,15 +56,25 @@ public class Checkout  {
         return basketItems;
     }
 
+    public HashMap<String, BasketItem> scan(String itemNumber, HashMap<String, Item> items) {
+        double price = getItemPrice(itemNumber, items);
+        if (basketItems.containsKey(itemNumber) ) {
+            int quantity = basketItems.get(itemNumber).getQuantity();
+            basketItems.put(itemNumber, new BasketItem(price, quantity+1));
+        }
+        else {
+            basketItems.put(itemNumber, new BasketItem(price));
+        }
+        return  basketItems;
+    }
+
     public String total() {
-
         double totalPrice = 0;
-
-
         for (Map.Entry<String, BasketItem> entry : basketItems.entrySet()) {
             String key = entry.getKey();
             BasketItem basketItem = entry.getValue();
-            totalPrice = totalPrice + basketItem.getPrice();
+            double totalPriceForItem = getTotalPriceForEachItemNumber(basketItem);
+            totalPrice = totalPrice + totalPriceForItem;
         }
 
         DecimalFormat df = new DecimalFormat("#############.###");
