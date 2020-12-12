@@ -83,12 +83,8 @@ class CheckoutTest {
         assertEquals(co.getItemPrice("077", items),0);
     }
 
-
-
     @Test
     void scanTestForOneItem() {
-        // TODO add test with one item that exits  and brand new item
-
         Item item = new Item("009", "Item 1", 9.99);
         HashMap<String, Item> items = co.addItem(item);
         co.scan("009", items);
@@ -101,8 +97,6 @@ class CheckoutTest {
 
     @Test
     void scanTestsForTwoUniqueItems() {
-        // TODO add test with one item that exits  and brand new item
-
         Item item = new Item("009", "Item 1", 9.99);
         Item item2 = new Item("010", "Item 2", 17.03);
         co.addItem(item);
@@ -111,8 +105,6 @@ class CheckoutTest {
         HashMap<String, Item> items = co.getItems();
         co.scan("009", items);
         co.scan("010", items);
-
-
         HashMap<String, BasketItem> basketItems = co.getBasketItems() ;
 
         assertEquals(basketItems.size(), 2);
@@ -120,23 +112,18 @@ class CheckoutTest {
         assertEquals(basketItems.get("009").getPrice(),9.99);
         assertEquals(basketItems.get("009").getQuantity(),1);
 
-
         assertEquals(basketItems.get("010").getPrice(),17.03);
         assertEquals(basketItems.get("010").getQuantity(),1);
     }
 
     @Test
     void scanTestsForSameTwoItems() {
-        // TODO add test with one item that exits  and brand new item
-
         Item item = new Item("009", "Item 1", 9.99);
         co.addItem(item);
 
         HashMap<String, Item> items = co.getItems();
         co.scan("009", items);
         co.scan("009", items);
-
-
         HashMap<String, BasketItem> basketItems = co.getBasketItems() ;
 
         assertEquals(basketItems.size(), 1);
@@ -157,7 +144,6 @@ class CheckoutTest {
         co.scan("010",items);
         co.scan("009", items);
 
-
         HashMap<String, BasketItem> basketItems = co.getBasketItems() ;
 
         assertEquals(basketItems.size(), 2);
@@ -165,29 +151,61 @@ class CheckoutTest {
         assertEquals(basketItems.get("009").getPrice(),9.99);
         assertEquals(basketItems.get("009").getQuantity(),2);
 
-
         assertEquals(basketItems.get("010").getPrice(),17.03);
         assertEquals(basketItems.get("010").getQuantity(),1);
     }
 
+
     @Test
-    void getTotalPriceForEachItemNumberTestWithOneItem(){
+    void totalTestForOneItem() {
         Item item = new Item("009", "Item 1", 9.99);
         HashMap<String, Item> items = co.addItem(item);
-        // TODO needs to be done after scan test
-//        co.getTotalPriceForEachItemNumber();
+        co.scan("009", items);
+        assertEquals(co.total(), "9.99");
     }
 
     @Test
-    void totalForOneItem() {
-        HashMap<String, Item> items = new HashMap<String, Item>();
-        items.put("009", new Item("009", "Item 1", 9.99));
+    void totalTestFortwoUniqueItems(){
+        Item item = new Item("009", "Item 1", 9.99);
+        Item item2 = new Item("010", "Item 2", 17.03);
 
-        HashMap<String, BasketItem> basketItems = new HashMap<String, BasketItem>();
+        co.addItem(item);
+        co.addItem(item2);
+        HashMap<String, Item> items = co.getItems();
 
-        Checkout checkout = new Checkout();
-        basketItems =  checkout.scan("009", items);
-        assertEquals(checkout.total(), "9.99");
+        co.scan("009", items);
+        co.scan("010", items);
+
+        assertEquals(co.total(), "27.02");
+    }
+
+    @Test
+    void totalTestFortwoOfSameItems(){
+        Item item = new Item("009", "Item 1", 9.99);
+
+        co.addItem(item);
+        HashMap<String, Item> items = co.getItems();
+
+        co.scan("009", items);
+        co.scan("009", items);
+
+        assertEquals(co.total(), "19.98");
+    }
+
+    @Test
+    void totalTestsForOneUniqueItemAndSameTwoItems(){
+        Item item = new Item("009", "Item 1", 9.99);
+        Item item2 = new Item("010", "Item 2", 17.03);
+
+        co.addItem(item);
+        co.addItem(item2);
+        HashMap<String, Item> items = co.getItems();
+
+        co.scan("009", items);
+        co.scan("010", items);
+        co.scan("009", items);
+
+        assertEquals(co.total(), "37.01");
     }
 
     @Test
