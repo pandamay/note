@@ -2,9 +2,7 @@ package org.example;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.util.HashMap;
-import java.util.LinkedList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,8 +13,6 @@ class CheckoutTest {
     public void setUp() {
         co = new Checkout();
     }
-
-    // add test for retriveing an item that doesn't exist
 
     @Test
     void addItemTestAddOneItem() {
@@ -72,22 +68,59 @@ class CheckoutTest {
     @Test
     void getItemPriceTestForItemThatExists() {
         Item item = new Item("009", "Item 1", 9.99);
+
         HashMap<String, Item> items = co.addItem(item);
+
         assertEquals(co.getItemPrice("009", items),9.99);
     }
 
     @Test
     void getItemPriceTestForItemDoesNotExist() {
         Item item = new Item("009", "Item 1", 9.99);
+
         HashMap<String, Item> items = co.addItem(item);
+
         assertEquals(co.getItemPrice("077", items),0);
+    }
+
+    @Test
+    void formatPriceTestsWith2DecimalsRoundingUp() {
+        double newPrice = co.formatPrice(9999.235124);
+        assertEquals(newPrice, 9999.24);
+    }
+
+    @Test
+    void getTotalPriceForEachItemNumberTestWith2Items() {
+        Item item = new Item("009", "Item 1", 5.06);
+        co.addItem(item);
+
+        HashMap<String, Item> items = co.getItems();
+        co.scan("009");
+        co.scan("009");
+        HashMap<String, BasketItem> basketItems = co.getBasketItems() ;
+
+        double price = co.getTotalPriceForEachItemNumber(basketItems.get("009"));
+        assertEquals(price,10.12);
+    }
+
+    @Test
+    void getTotalPriceForEachItemNumberTestWith1Item() {
+        Item item = new Item("009", "Item 1", 5.06);
+        co.addItem(item);
+
+        HashMap<String, Item> items = co.getItems();
+        co.scan("009");
+        HashMap<String, BasketItem> basketItems = co.getBasketItems() ;
+
+        double price = co.getTotalPriceForEachItemNumber(basketItems.get("009"));
+        assertEquals(price,5.06);
     }
 
     @Test
     void scanTestForOneItem() {
         Item item = new Item("009", "Item 1", 9.99);
         HashMap<String, Item> items = co.addItem(item);
-        co.scan("009", items);
+        co.scan("009");
 
         HashMap<String, BasketItem> basketItems = co.getBasketItems() ;
         assertEquals(basketItems.size(), 1);
@@ -103,8 +136,8 @@ class CheckoutTest {
         co.addItem(item2);
 
         HashMap<String, Item> items = co.getItems();
-        co.scan("009", items);
-        co.scan("010", items);
+        co.scan("009");
+        co.scan("010");
         HashMap<String, BasketItem> basketItems = co.getBasketItems() ;
 
         assertEquals(basketItems.size(), 2);
@@ -122,8 +155,8 @@ class CheckoutTest {
         co.addItem(item);
 
         HashMap<String, Item> items = co.getItems();
-        co.scan("009", items);
-        co.scan("009", items);
+        co.scan("009");
+        co.scan("009");
         HashMap<String, BasketItem> basketItems = co.getBasketItems() ;
 
         assertEquals(basketItems.size(), 1);
@@ -131,6 +164,7 @@ class CheckoutTest {
         assertEquals(basketItems.get("009").getPrice(),9.99);
         assertEquals(basketItems.get("009").getQuantity(),2);
     }
+
 
     @Test
     void scanTestsForOneUniqueItemAndSameTwoItems() {
@@ -140,9 +174,9 @@ class CheckoutTest {
         co.addItem(item2);
 
         HashMap<String, Item> items = co.getItems();
-        co.scan("009", items);
-        co.scan("010",items);
-        co.scan("009", items);
+        co.scan("009");
+        co.scan("010");
+        co.scan("009");
 
         HashMap<String, BasketItem> basketItems = co.getBasketItems() ;
 
@@ -159,9 +193,11 @@ class CheckoutTest {
     @Test
     void totalTestForOneItem() {
         Item item = new Item("009", "Item 1", 9.99);
-        HashMap<String, Item> items = co.addItem(item);
-        co.scan("009", items);
-        assertEquals(co.total(), "9.99");
+        co.addItem(item);
+
+        co.scan("009");
+
+        assertEquals(co.total(), 9.99);
     }
 
     @Test
@@ -171,12 +207,11 @@ class CheckoutTest {
 
         co.addItem(item);
         co.addItem(item2);
-        HashMap<String, Item> items = co.getItems();
 
-        co.scan("009", items);
-        co.scan("010", items);
+        co.scan("009");
+        co.scan("010");
 
-        assertEquals(co.total(), "27.02");
+        assertEquals(co.total(), 27.03);
     }
 
     @Test
@@ -184,12 +219,11 @@ class CheckoutTest {
         Item item = new Item("009", "Item 1", 9.99);
 
         co.addItem(item);
-        HashMap<String, Item> items = co.getItems();
 
-        co.scan("009", items);
-        co.scan("009", items);
+        co.scan("009");
+        co.scan("009");
 
-        assertEquals(co.total(), "19.98");
+        assertEquals(co.total(), 19.98);
     }
 
     @Test
@@ -199,41 +233,67 @@ class CheckoutTest {
 
         co.addItem(item);
         co.addItem(item2);
-        HashMap<String, Item> items = co.getItems();
 
-        co.scan("009", items);
-        co.scan("010", items);
-        co.scan("009", items);
+        co.scan("009");
+        co.scan("010");
+        co.scan("009");
 
-        assertEquals(co.total(), "37.01");
+        assertEquals(co.total(), 37.02);
     }
 
     @Test
     void totalForMultiUniqueItemsNotEligiableForDiscountOnTotal() {
-        HashMap<String, Item> items = new HashMap<String, Item>();
-        items.put("009", new Item("009", "Item 1", 9.00));
-        items.put("008", new Item("008", "Item 2", 10.99));
+        Item item1 = new Item("008", "Item 1", 20.00);
+        Item item2 = new Item("009", "Item 2", 10.00);
 
+        co.addItem(item1);
+        co.addItem(item2);
 
-        HashMap<String, BasketItem> basketItems = new HashMap<String, BasketItem>();
-        Checkout checkout = new Checkout();
-        basketItems =  checkout.scan("009", items);
-        basketItems =  checkout.scan("008", items);
-        assertEquals(checkout.total(), "19.99");
+        co.scan("009");
+        co.scan("008");
+        assertEquals(co.total(), 30.00);
     }
 
 
     @Test
     void totalForMultiUniqueItemsEligableDiscountTotal() {
-        HashMap<String, Item> items = new HashMap<String, Item>();
-        items.put("009", new Item("009", "Item 1", 20));
-        items.put("008", new Item("008", "Item 2", 50));
+        Item item1 = new Item("008", "Item 1", 50.00);
+        Item item2 = new Item("009", "Item 2", 20.00);
 
+        co.addItem(item1);
+        co.addItem(item2);
 
-        HashMap<String, BasketItem> basketItems = new HashMap<String, BasketItem>();
-        Checkout checkout = new Checkout();
-        basketItems =  checkout.scan("009", items);
-        basketItems =  checkout.scan("008", items);
-        assertEquals(checkout.total(), "63");
+        co.scan("009");
+        co.scan("008");
+        assertEquals(co.total(), 63.00);
+    }
+
+    @Test
+    void totalTestForTwoOfSameItemsEligibleForDiscount(){
+        Item item = new Item("001", "Item 1", 9.99);
+        co.addItem(item);
+
+        co.scan("001");
+        co.scan("001");
+
+        assertEquals(co.total(), 17.00);
+    }
+
+    @Test
+    void totalTestForBasketEligibleForTwoItemDiscountAndTotalDiscount(){
+        Item item = new Item("001", "Item 1", 9.99);
+        Item item2 = new Item("008", "Item 1", 60.00);
+        Item item3 = new Item("009", "Item 1", 20.00);
+
+        co.addItem(item);
+        co.addItem(item2);
+        co.addItem(item3);
+
+        co.scan("001");
+        co.scan("008");
+        co.scan("009");
+        co.scan("001");
+
+        assertEquals(co.total(), 87.3);
     }
 }

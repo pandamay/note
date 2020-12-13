@@ -1,22 +1,34 @@
 package org.example;
 
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Checkout  {
 
-    //TODO, add access modifiers to classes and variables and fix private and public
-
     HashMap<String, Item> items;
     HashMap<String, BasketItem> basketItems;
+    Rules promotionalRules;
+    private static DecimalFormat df = new DecimalFormat("0.00");
+
 
     public Checkout() {
         items = new HashMap<String, Item>();
         basketItems = new HashMap<String, BasketItem>();
+        this.promotionalRules =  new Rules();
+    }
+
+    public Checkout(Rules promotionalRules) {
+        items = new HashMap<String, Item>();
+        basketItems = new HashMap<String, BasketItem>();
+        this.promotionalRules =  new Rules(promotionalRules.multiItemDiscountRule, promotionalRules.totalCostRule);
+        addAllItems();
+
     }
 
     public  HashMap<String, Item> addItem(Item item)  {
+        items = getItems();
         items.put(item.getId(), item);
         return items;
     }
@@ -42,25 +54,21 @@ public class Checkout  {
         int quantityPerItem = basketItem.getQuantity();
         totalPriceForItem = pricePerItem * quantityPerItem;
         return totalPriceForItem;
-
     }
 
-    private double applyDiscountOnTotalIfApplies(double totalPrice){
-        if (totalPrice > 60) {
-            return (totalPrice - (totalPrice*0.1));
-        }
-        return totalPrice;
+    protected Double formatPrice(double priceAfterRules) {
+        df.setRoundingMode(RoundingMode.UP);
+        String formatPrice = df.format(priceAfterRules);
+        return Double.valueOf(formatPrice);
     }
 
-    private HashMap<String, BasketItem> applyMultiProductDeals() {
-        return basketItems;
-    }
-
-    public HashMap<String, BasketItem> scan(String itemNumber, HashMap<String, Item> items) {
+    public HashMap<String, BasketItem> scan(String itemNumber) {
+        items = getItems();
         double price = getItemPrice(itemNumber, items);
         if (basketItems.containsKey(itemNumber) ) {
             int quantity = basketItems.get(itemNumber).getQuantity();
-            basketItems.put(itemNumber, new BasketItem(price, quantity+1));
+            double newPrice = promotionalRules.getMultiItemDiscountRule().applyDiscountRule(itemNumber,quantity,price);
+            basketItems.put(itemNumber, new BasketItem(newPrice, quantity+1));
         }
         else {
             basketItems.put(itemNumber, new BasketItem(price));
@@ -68,7 +76,7 @@ public class Checkout  {
         return  basketItems;
     }
 
-    public String total() {
+    public Double total() {
         double totalPrice = 0;
         for (Map.Entry<String, BasketItem> entry : basketItems.entrySet()) {
             String key = entry.getKey();
@@ -76,9 +84,10 @@ public class Checkout  {
             double totalPriceForItem = getTotalPriceForEachItemNumber(basketItem);
             totalPrice = totalPrice + totalPriceForItem;
         }
+        double priceAfterRules = promotionalRules.getTotalCostRule().applyDiscountRule(totalPrice);
+        Double formatedPrice = formatPrice(priceAfterRules);
 
-        DecimalFormat df = new DecimalFormat("#############.###");
-        return (df.format(applyDiscountOnTotalIfApplies(totalPrice)));
+        return (formatedPrice);
 
     }
 
