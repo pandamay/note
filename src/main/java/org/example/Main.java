@@ -17,7 +17,6 @@ public class Main {
         checkout.scan("001");
         checkout.scan("002");
         checkout.scan("003");
-//        checkout.scan("002");
 
         System.out.println("Total Price Expected = " + checkout.total());
 
